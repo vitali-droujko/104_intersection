@@ -1,0 +1,86 @@
+#!/usr/bin/env python3
+##
+## EPITECH PROJECT, 2020
+## 104intersection
+## File description:
+## main file
+##
+
+from sys import exit, argv
+from math import sqrt, tan, pi
+from msg_print import error_handling, printer
+
+def param_manager(opt, p, coords):
+    r = nmb_intersection(coords, p, opt)
+    racine = [[r[0], 0, 0], [0,0,0], [0,0,0]]
+    racine = param_shape(coords, r, racine)
+    return racine
+
+def param_shape(coords, r, racine):
+    if r[0] == 0:
+        for j in range(3):
+            racine[1][j] = coords[0][j] + coords[1][j] * r[1]
+    elif r[0] > 0:
+        for i in range(1, 3):
+            for j in range(3):
+                racine[i][j] = coords[0][j] + coords[1][j] * r[i]
+    return racine
+
+def distributor(coords, p, opt):
+    delta = [0, 0, 0]
+    n = (3 if opt == 1 or opt == 3 else 2)
+    p *= (pi / 180 if opt == 3 else 1)
+    a = 1
+
+    for i in range(n):
+        if i == n - 1 and opt == 3:
+            a = tan(p)**2 * (-1)
+        delta[0] += coords[1][i] * coords[1][i] * a
+        delta[1] += 2 * coords[1][i] * coords[0][i] * a
+        delta[2] += coords[0][i] ** 2 * a
+    if opt != 3:
+        delta[2] -= p ** 2
+    return delta
+
+def nmb_intersection(coords, p, opt):
+    delta = distributor(coords, p, opt)
+    a = delta[1] ** 2 - 4 * delta[0] * delta[2]
+    r = [0, 0, 0]
+    r[0] = a
+
+    if a > 0:
+        r[1] = (-delta[1] + sqrt(float(a))) / (2.0 * delta[0])
+        r[2] = (-delta[1] - sqrt(float(a))) / (2.0 * delta[0])
+    elif a == 0:
+        try:
+            r[1] = (-delta[1]) / (2.0 * delta[0])
+        except:
+            r[0] = pi
+    return r
+
+def main():
+    error = 0
+
+    if (len(argv) != 9):
+        error_handling(84)
+    try:
+        opt = int(argv[1])
+        x = [float(argv[2]), float(argv[3]), float(argv[4])]
+        y = [float(argv[5]), float(argv[6]), float(argv[7])]
+        coords = [x, y]
+        p = int(argv[8])
+        if ((opt < 1 or opt > 3 or p < 1)                           \
+            or (y[0] == y[1] == y[2] == 0) or (opt == 3 and p >= 90)):
+            error = 1
+            error_handling(84)
+    except:
+        if (error == 0):
+            error_handling(84)
+        else:
+            exit(84)
+    racine = param_manager(opt, p, coords)
+    printer(opt, coords, p, racine)
+    return 0
+
+if __name__ == "__main__":
+    main()
